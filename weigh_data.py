@@ -1,41 +1,72 @@
 import pandas as pd
+import numpy as np
+import os
 
-columns = []
-id_cols = ["Name", "Position", "player_id", "player_age", "year"]
-exclude_cols = ["player_id", "player_age", "year"]
+# replace rows of all-zeros with NaN
+def zero_to_nan(df, cols):
+    mask = (df[cols].sum(axis=1) == 0)
+    df.loc[mask, cols] = np.nan
+    return df
 
-# HITTERS
-hitters_2025 = pd.read_csv('cleaned_stats/2025_free_agent_hitters_stats_cleaned.csv')
-hitters_2024 = pd.read_csv('cleaned_stats/2024_free_agent_hitters_stats_cleaned.csv')
-hitters_2023 = pd.read_csv('cleaned_stats/2023_free_agent_hitters_stats_cleaned.csv')
+# compute weighted average of numeric columns
+def weighted_avg(group, numeric_cols):
+    vals = group[numeric_cols].to_numpy()
+    weights = group["year_weight"].to_numpy()
 
-columns = [c for c in hitters_2025.select_dtypes(include="number").columns if c not in exclude_cols]
+    mask = ~np.isnan(vals).all(axis=1)
+    vals = vals[mask]
+    weights = weights[mask]
 
-weighted_hitters = (
-    0.5 * hitters_2025[columns] +
-    0.3 * hitters_2024[columns] +
-    0.2 * hitters_2023[columns]
-)
+    if len(weights) == 0 or weights.sum() == 0:
+        return pd.Series([np.nan] * len(numeric_cols), index=numeric_cols)
 
-id_cols = [c for c in id_cols if c in hitters_2025.columns]
-weighted_hitters = pd.concat([hitters_2025[id_cols], weighted_hitters], axis=1)
+    weights = weights / weights.sum()
+    return pd.Series(np.average(vals, axis=0, weights=weights), index=numeric_cols)
 
-weighted_hitters.to_csv('weighed_stats/weighted_hitters.csv', index=False)
+# process hitters or pitchers
+def process_free_agents(file_prefix, output_file):
 
-# PITCHERS
-pitchers_2025 = pd.read_csv('cleaned_stats/2025_free_agent_pitchers_stats_cleaned.csv')
-pitchers_2024 = pd.read_csv('cleaned_stats/2024_free_agent_pitchers_stats_cleaned.csv')
-pitchers_2023 = pd.read_csv('cleaned_stats/2023_free_agent_pitchers_stats_cleaned.csv')
+    # LOAD DATA
+    df_2025 = pd.read_csv(f'cleaned_stats/2025_free_agent_{file_prefix}_stats_cleaned.csv')
+    df_2024 = pd.read_csv(f'cleaned_stats/2024_free_agent_{file_prefix}_stats_cleaned.csv')
+    df_2023 = pd.read_csv(f'cleaned_stats/2023_free_agent_{file_prefix}_stats_cleaned.csv')
 
-columns = [c for c in pitchers_2025.select_dtypes(include="number").columns if c not in exclude_cols]
+    # Identify numeric columns (exclude ID fields)
+    exclude_cols = ["player_id", "player_age", "year"]
+    numeric_cols = [c for c in df_2025.select_dtypes(include="number").columns if c not in exclude_cols]
 
-weighted_pitchers = (
-    0.5 * pitchers_2025[columns] +
-    0.3 * pitchers_2024[columns] +
-    0.2 * pitchers_2023[columns]
-)
+    # CLEAN ZEROES
+    df_2025 = zero_to_nan(df_2025, numeric_cols)
+    df_2024 = zero_to_nan(df_2024, numeric_cols)
+    df_2023 = zero_to_nan(df_2023, numeric_cols)
 
-id_cols = [c for c in id_cols if c in pitchers_2025.columns]
-weighted_pitchers = pd.concat([pitchers_2025[id_cols], weighted_pitchers], axis=1)
+    # ADD WEIGHTS
+    df_2025["year_weight"] = 0.5
+    df_2024["year_weight"] = 0.3
+    df_2023["year_weight"] = 0.2
 
-weighted_pitchers.to_csv("weighed_stats/weighted_pitchers.csv", index=False)
+    # STACK YEARS
+    all_df = pd.concat([df_2025, df_2024, df_2023])
+
+    # ID columns to merge back
+    id_cols = [c for c in ["Name", "Position", "player_id", "player_age"] if c in all_df.columns]
+
+    # Weighted averages per player
+    group_key = "Name" if "Name" in all_df.columns else "player_id"
+    weighted_df = (
+        all_df.groupby(group_key)
+        .apply(lambda g: weighted_avg(g, numeric_cols))
+        .reset_index()
+    )
+
+    # Merge ID info (from 2025 or first available year)
+    weighted_df = weighted_df.merge(df_2025[id_cols], on=group_key, how="left")
+
+    # SAVE TO FILE
+    os.makedirs("weighed_stats", exist_ok=True)
+    weighted_df.to_csv(f"weighed_stats/{output_file}", index=False)
+    print(f"Saved {output_file}")
+
+# HITTERS & PITCHERS
+process_free_agents("hitters", "weighted_hitters.csv")
+process_free_agents("pitchers", "weighted_pitchers.csv")
