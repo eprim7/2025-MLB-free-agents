@@ -13,7 +13,7 @@ free_agents_hitters_2024_stats = free_agents_hitters_2024_stats.fillna(0)
 free_agents_hitters_2024_stats.to_csv('cleaned_stats/2024_free_agent_hitters_stats_cleaned.csv')
 
 # 2025 hitters
-free_agents_hitters_2025_stats = pd.read_csv('uncleaned_stats/2025_free_agent_hitters_stats.csv')
+free_agents_hitters_2025_stats = pd.read_csv('2025_free_agent_hitters_stats.csv')
 free_agents_hitters_2025_stats = free_agents_hitters_2025_stats.fillna(0)
 free_agents_hitters_2025_stats.to_csv('cleaned_stats/2025_free_agent_hitters_stats_cleaned.csv')
 
