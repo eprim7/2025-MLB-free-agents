@@ -58,6 +58,7 @@ pitchers_norm['on_base_percent'] = 1 - pitchers_norm['on_base_percent']
 pitchers_norm['hard_hit_percent'] =  1 - pitchers_norm['hard_hit_percent']
 pitchers_norm['woba'] = 1 - pitchers_norm['woba']
 
+# RANK PITCHERS BY STRIKEOUT ABILITY
 pitchers_norm['strikeout_score'] = (
     pitchers_norm['k_percent'] * 0.3 +
     pitchers_norm['whiff_percent'] * 0.3 +
@@ -65,6 +66,8 @@ pitchers_norm['strikeout_score'] = (
     pitchers_norm['xiso'] * 0.2
 )
 
+
+# RANK PITCHERS OVERALL
 pitchers_norm['overall_score'] = (
     pitchers_norm['on_base_plus_slg'] * 0.3 +
     pitchers_norm['on_base_percent'] * 0.3 + 
