@@ -1,15 +1,16 @@
 import './App.css';
 import {BrowserRouter as Router, Route, Routes} from 'react-router-dom'
 import Home from './pages/Home/Home';
-import Stats from './pages/Stats/Stats';
-
-
+import Pitchers from './pages/Pitchers/Pitchers';
+import Hitters from './pages/Hitters/Hitters';
 function App() {
   return (
     <Router>
       <Routes>
         <Route path='/' element={<Home  />}/>
-        <Route path='/stats' element={<Stats />}/>
+        <Route path='/pitchers' element={<Pitchers />}/>
+        <Route path='/hitters' element={<Hitters />}/>
+
       </Routes>
     </Router>
 

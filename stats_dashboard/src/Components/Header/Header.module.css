@@ -1,0 +1,9 @@
+.container{
+    display: flex;
+    gap: 33%;
+    margin-left: 10%;
+}
+.link{
+    color: red;
+    text-decoration: none;
+}

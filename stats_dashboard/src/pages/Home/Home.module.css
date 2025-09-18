@@ -1,0 +1,81 @@
+/* Title styling */
+.title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 3rem;
+  text-align: center;
+  margin-top: 20px;
+  color: #00274d; /* deep navy */
+  letter-spacing: 2px;
+}
+
+/* Fullscreen hero section */
+.imageContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+
+  /* Hero background */
+  background: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.2)),
+              url('/public/assets/home.png') center/cover no-repeat;
+  color: white;
+}
+
+/* Hide the original img (if you still want to keep the <img> tag, you can remove this) */
+.image {
+  display: none;
+}
+
+/* Info container (holds What / Why / How) */
+.infoContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 50px 0;
+  background: #f4f4f4;
+}
+
+/* Card styling */
+.scrollText {
+  width: 70%;
+  min-height: 300px;
+  margin: 10vh auto;
+  padding: 40px;
+  text-align: center;
+  font-size: 1.2rem;
+
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  /* Hover effect */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.scrollText:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+/* Alternate background shades for variety */
+.scrollText:nth-child(even) {
+  background: #fafafa;
+}
+
+/* Headings inside cards */
+.scrollText h2 {
+  color: #c4001d; /* baseball red */
+  margin-bottom: 15px;
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+/* Paragraph text */
+.scrollText p {
+  font-weight: 500;
+  color: #333;
+  line-height: 1.6;
+}
